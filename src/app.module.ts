@@ -4,6 +4,8 @@ import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from './users/entities/user.entity';
+import { AuthModule } from './auth/auth.module';
+import { TokenEntity } from './auth/entities/token.entity';
 
 @Module({
   imports: [
@@ -14,10 +16,11 @@ import { UserEntity } from './users/entities/user.entity';
       host: 'localhost',
       port: 5432,
       database: 'sirunchained-blog',
-      entities: [UserEntity],
+      entities: [UserEntity, TokenEntity],
       synchronize: true,
     }),
     UsersModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
