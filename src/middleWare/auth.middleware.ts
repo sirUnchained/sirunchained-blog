@@ -5,14 +5,12 @@ import {
 } from '@nestjs/common';
 import { NextFunction } from 'express';
 
-import bcrypt from 'bcrypt';
 import { TokenEntity } from 'src/auth/entities/token.entity';
-import { UserEntity } from 'src/users/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 @Injectable()
-export class authMiddleware implements NestMiddleware {
+export class AuthMiddleware implements NestMiddleware {
   constructor(
     @InjectRepository(TokenEntity)
     private readonly tokenRepo: Repository<TokenEntity>,
@@ -27,7 +25,7 @@ export class authMiddleware implements NestMiddleware {
 
       const realTokenData = await this.tokenRepo.findOne({
         where: { token: hashedToken },
-        relations: ['users'],
+        relations: ['user'],
       });
       if (!realTokenData) {
         throw new BadRequestException(
@@ -35,7 +33,9 @@ export class authMiddleware implements NestMiddleware {
         );
       }
 
-      req.body.user = realTokenData.user;
+      delete realTokenData.user.password;
+
+      req.user = realTokenData.user;
       next();
       return;
     } catch (error) {

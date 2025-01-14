@@ -11,7 +11,7 @@ import { Repository } from 'typeorm';
 import { UserEntity } from 'src/users/entities/user.entity';
 import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
-import UserRoles from 'src/users/usersEnum/roles.enum';
+import UserRoles from 'src/Enums/usersEnum/roles.enum';
 
 @Injectable()
 export class AuthService {

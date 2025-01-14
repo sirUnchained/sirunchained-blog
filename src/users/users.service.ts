@@ -9,7 +9,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from './entities/user.entity';
 import { Repository } from 'typeorm';
-import UserRoles from './usersEnum/roles.enum';
+import UserRoles from '../Enums/usersEnum/roles.enum';
 
 @Injectable()
 export class UsersService {
@@ -17,10 +17,6 @@ export class UsersService {
     @InjectRepository(UserEntity)
     private readonly userRepo: Repository<UserEntity>,
   ) {}
-
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
-  }
 
   async findAll(queries: { limit: number; page: number }) {
     try {
@@ -55,6 +51,8 @@ export class UsersService {
         throw new BadRequestException('user not found.');
       }
 
+      delete user.password;
+
       return user;
     } catch (error) {
       if (error instanceof BadRequestException) {
@@ -76,12 +74,12 @@ export class UsersService {
       }
 
       for (const column in user) {
-        if (!user[column]) {
+        if (user[column] == null || user[column] == undefined) {
           throw new ForbiddenException(`this user ${column} is incomplete.`);
         }
       }
 
-      user.roles = [UserRoles.author];
+      user.roles = [...new Set([...user.roles, UserRoles.author])];
       await this.userRepo.save(user);
       delete user.password;
 
