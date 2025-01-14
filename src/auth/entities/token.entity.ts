@@ -2,11 +2,13 @@ import { UserEntity } from 'src/users/entities/user.entity';
 import {
   Column,
   CreateDateColumn,
+  Entity,
   JoinColumn,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
+@Entity('tokens')
 export class TokenEntity {
   @PrimaryGeneratedColumn()
   id: number;

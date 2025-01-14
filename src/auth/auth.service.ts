@@ -27,21 +27,16 @@ export class AuthService {
       const remembered = !!registerDto.remember;
       delete registerDto.remember;
 
-      const checkExistedData = await this.userRepo.findOne({
-        where: { ...registerDto },
-      });
-      if (checkExistedData) {
-        console.log(checkExistedData);
-        throw new BadRequestException(
-          'the email or phone or username is not open to use.',
-        );
-      }
-
       const hashedPassword = await bcrypt.hash(registerDto.password, 12);
       const newUser = this.userRepo.create({
         ...registerDto,
         password: hashedPassword,
       });
+
+      if (newUser.id == 1) {
+        newUser.roles = [UserRoles.admin, UserRoles.author];
+      }
+      await this.userRepo.save(newUser);
 
       const token = jwt.sign({ id: newUser.id }, 'shhh_tokens_secret_key', {
         expiresIn: remembered ? '7d' : '2d',
@@ -50,24 +45,22 @@ export class AuthService {
       const hashedToken = await bcrypt.hash(token, 10);
 
       const expiresAt = remembered
-        ? Date.now() + 7 * 24 * 60 * 60 * 1000
-        : Date.now() + 2 * 24 * 60 * 60 * 1000;
+        ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+        : new Date(Date.now() + 2 * 24 * 60 * 60 * 1000);
       await this.tokenRepo.save({
         user: newUser,
         token: hashedToken,
         expiresAt,
       });
 
-      if (newUser.id == 1) {
-        newUser.roles = [UserRoles.admin, UserRoles.author];
-      }
-      await this.userRepo.save(newUser);
-
       return { token: hashedToken };
     } catch (error) {
-      console.log(error);
       if (error instanceof BadRequestException) {
         throw error;
+      } else if (error.code == 23505) {
+        throw new BadRequestException(
+          'invalid datas, try to chose another username, email or phone.',
+        );
       }
       throw new InternalServerErrorException(error.message);
     }
@@ -90,6 +83,13 @@ export class AuthService {
         throw new BadRequestException('datas are not valid.');
       }
 
+      const existedToken = await this.tokenRepo.findOne({
+        where: { user: user.id as any },
+      });
+      if (existedToken) {
+        return { token: existedToken.token };
+      }
+
       const token = jwt.sign({ id: user.id }, 'shhh_tokens_secret_key', {
         expiresIn: remembered ? '7d' : '2d',
         algorithm: 'HS256',
@@ -97,8 +97,8 @@ export class AuthService {
       const hashedToken = await bcrypt.hash(token, 10);
 
       const expiresAt = remembered
-        ? Date.now() + 7 * 24 * 60 * 60 * 1000
-        : Date.now() + 2 * 24 * 60 * 60 * 1000;
+        ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+        : new Date(Date.now() + 2 * 24 * 60 * 60 * 1000);
       await this.tokenRepo.save({
         user,
         token: hashedToken,
