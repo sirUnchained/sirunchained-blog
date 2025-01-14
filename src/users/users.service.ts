@@ -98,7 +98,16 @@ export class UsersService {
 
   async update(updateUserDto: UpdateUserDto, req: any) {
     try {
-      return `This action updates a  user`;
+      const currentUser = req.user as any;
+
+      for (const column in updateUserDto) {
+        currentUser[column] = updateUserDto[column];
+      }
+
+      await this.userRepo.save(currentUser);
+      delete currentUser.password;
+
+      return currentUser;
     } catch (error) {
       if (error instanceof BadRequestException) {
         throw error;
