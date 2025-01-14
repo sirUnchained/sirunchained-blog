@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  Put,
+  Req,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -13,8 +24,8 @@ export class UsersController {
   }
 
   @Get()
-  findAll() {
-    return this.usersService.findAll();
+  findAll(@Query() queries: { limit: number; page: number }) {
+    return this.usersService.findAll(queries);
   }
 
   @Get(':id')
@@ -22,13 +33,23 @@ export class UsersController {
     return this.usersService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
+  @Patch('new-author/:id')
+  newAuthor(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    return this.usersService.newAuthor(+id);
+  }
+
+  @Put()
+  update(@Body() updateUserDto: UpdateUserDto, @Req() req: any) {
+    return this.usersService.update(updateUserDto, req);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.usersService.remove(+id);
+  }
+
+  @Delete(':id')
+  ban(@Param('id') id: string) {
+    return this.usersService.ban(+id);
   }
 }

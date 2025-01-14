@@ -15,6 +15,9 @@ export class UserEntity {
   @Column({ unique: true, nullable: true })
   email: string;
 
+  @Column({ nullable: false })
+  password: string;
+
   @Column({ default: 'no bio yet.' })
   bio: string;
 
@@ -25,4 +28,7 @@ export class UserEntity {
     default: [UserRoles.user],
   })
   roles: UserRoles[];
+
+  @Column({ default: false })
+  isBanned: Boolean;
 }
