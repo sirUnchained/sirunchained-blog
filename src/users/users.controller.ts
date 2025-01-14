@@ -39,6 +39,11 @@ export class UsersController {
     return this.usersService.newAuthor(+id);
   }
 
+  @Patch('un-ban/:id')
+  unBan(@Param('id') id: string) {
+    return this.usersService.unBan(+id);
+  }
+
   @Put()
   update(@Body() updateUserDto: UpdateUserDto, @Req() req: any) {
     return this.usersService.update(updateUserDto, req);

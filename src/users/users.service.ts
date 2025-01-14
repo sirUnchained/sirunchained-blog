@@ -125,7 +125,7 @@ export class UsersService {
         throw new BadRequestException('user not found.');
       }
 
-      return 'user removed.';
+      return { message: 'user removed.' };
     } catch (error) {
       if (error instanceof BadRequestException) {
         throw error;
@@ -148,7 +148,30 @@ export class UsersService {
       user.isBanned = true;
       await this.userRepo.save(user);
 
-      return 'user is now banned.';
+      return { message: 'user is now banned.' };
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
+  async unBan(id: number) {
+    try {
+      if (!id) {
+        throw new BadRequestException('user not found.');
+      }
+
+      const user = await this.userRepo.findOne({ where: { id } });
+      if (!user) {
+        throw new BadRequestException('user not found.');
+      }
+
+      user.isBanned = false;
+      await this.userRepo.save(user);
+
+      return { message: 'user is now unBanned.' };
     } catch (error) {
       if (error instanceof BadRequestException) {
         throw error;
