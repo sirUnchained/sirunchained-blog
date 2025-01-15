@@ -1,7 +1,7 @@
 import {
-  BadRequestException,
   Injectable,
   NestMiddleware,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { NextFunction } from 'express';
 
@@ -20,7 +20,7 @@ export class AuthMiddleware implements NestMiddleware {
     try {
       const hashedToken = req.headers.authorization?.split(' ')[1];
       if (!hashedToken) {
-        throw new BadRequestException('please sign in or sign up first.');
+        throw new UnauthorizedException('please sign in or sign up first.');
       }
 
       const realTokenData = await this.tokenRepo.findOne({
@@ -28,7 +28,7 @@ export class AuthMiddleware implements NestMiddleware {
         relations: ['user'],
       });
       if (!realTokenData) {
-        throw new BadRequestException(
+        throw new UnauthorizedException(
           'token is not valid, please sign in or sign up first.',
         );
       }

@@ -2,6 +2,7 @@ import { Optional } from '@nestjs/common';
 import {
   IsBoolean,
   IsEmail,
+  IsLowercase,
   IsNotEmpty,
   IsString,
   Matches,
@@ -11,6 +12,7 @@ import {
 export class RegisterDto {
   @IsNotEmpty()
   @IsString()
+  @IsLowercase()
   username: string;
 
   @IsNotEmpty()

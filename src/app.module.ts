@@ -1,6 +1,4 @@
 import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from './users/entities/user.entity';
@@ -10,10 +8,11 @@ import { RoleGuard } from 'src/middleWare/roleGaurd.middleware';
 import { AuthMiddleware } from 'src/middleWare/auth.middleware';
 import { TokenEntity } from 'src/auth/entities/token.entity';
 import { CategoriesModule } from './categories/categories.module';
+import { CategoryEntity } from './categories/entities/category.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UserEntity, TokenEntity]),
+    TypeOrmModule.forFeature([UserEntity, TokenEntity, CategoryEntity]),
     TypeOrmModule.forRoot({
       type: 'postgres',
       username: 'postgres',
@@ -21,28 +20,34 @@ import { CategoriesModule } from './categories/categories.module';
       host: 'localhost',
       port: 5432,
       database: 'sirunchained-blog',
-      entities: [UserEntity, TokenEntity],
+      entities: [UserEntity, TokenEntity, CategoryEntity],
       synchronize: true,
     }),
     UsersModule,
     AuthModule,
     CategoriesModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(AuthMiddleware)
-      .forRoutes({ path: 'users*', method: RequestMethod.ALL });
+      .exclude({ path: 'categories/', method: RequestMethod.GET })
+      .forRoutes(
+        { path: 'users*', method: RequestMethod.ALL },
+        { path: 'categories*', method: RequestMethod.ALL },
+      );
 
     consumer
-      .apply(new RoleGuard().use([UserRoles.admin, UserRoles.author]))
+      .apply(new RoleGuard().use([UserRoles.admin]))
       .exclude(
         { path: 'users/:id', method: RequestMethod.PUT },
         { path: 'users/me', method: RequestMethod.GET },
+        { path: 'categories/', method: RequestMethod.GET },
       )
-      .forRoutes({ path: 'users*', method: RequestMethod.ALL });
+      .forRoutes(
+        { path: 'users*', method: RequestMethod.ALL },
+        { path: 'categories*', method: RequestMethod.ALL },
+      );
   }
 }
