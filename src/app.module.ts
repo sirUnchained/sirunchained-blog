@@ -9,6 +9,7 @@ import { AuthMiddleware } from 'src/middleWare/auth.middleware';
 import { TokenEntity } from 'src/auth/entities/token.entity';
 import { CategoriesModule } from './categories/categories.module';
 import { CategoryEntity } from './categories/entities/category.entity';
+import { ArticlesModule } from './articles/articles.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { CategoryEntity } from './categories/entities/category.entity';
     UsersModule,
     AuthModule,
     CategoriesModule,
+    ArticlesModule,
   ],
 })
 export class AppModule {
