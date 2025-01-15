@@ -1,10 +1,9 @@
 import {
-  BadRequestException,
   ForbiddenException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from './entities/user.entity';
@@ -43,19 +42,19 @@ export class UsersService {
   async findOne(id: number) {
     try {
       if (!id) {
-        throw new BadRequestException('user not found.');
+        throw new NotFoundException('user not found.');
       }
 
       const user = await this.userRepo.findOne({ where: { id } });
       if (!user) {
-        throw new BadRequestException('user not found.');
+        throw new NotFoundException('user not found.');
       }
 
       delete user.password;
 
       return user;
     } catch (error) {
-      if (error instanceof BadRequestException) {
+      if (error instanceof NotFoundException) {
         throw error;
       }
       throw new InternalServerErrorException(error.message);
@@ -65,12 +64,12 @@ export class UsersService {
   async newAuthor(id: number) {
     try {
       if (!id) {
-        throw new BadRequestException('user not found.');
+        throw new NotFoundException('user not found.');
       }
 
       const user = await this.userRepo.findOne({ where: { id } });
       if (!user) {
-        throw new BadRequestException('user not found.');
+        throw new NotFoundException('user not found.');
       }
 
       for (const column in user) {
@@ -85,7 +84,7 @@ export class UsersService {
 
       return user;
     } catch (error) {
-      if (error instanceof BadRequestException) {
+      if (error instanceof NotFoundException) {
         throw error;
       } else if (error instanceof ForbiddenException) {
         throw error;
@@ -107,9 +106,6 @@ export class UsersService {
 
       return currentUser;
     } catch (error) {
-      if (error instanceof BadRequestException) {
-        throw error;
-      }
       throw new InternalServerErrorException(error.message);
     }
   }
@@ -117,17 +113,17 @@ export class UsersService {
   async remove(id: number) {
     try {
       if (!id) {
-        throw new BadRequestException('user not found.');
+        throw new NotFoundException('user not found.');
       }
 
       const result = await this.userRepo.delete(id);
       if (!result.affected) {
-        throw new BadRequestException('user not found.');
+        throw new NotFoundException('user not found.');
       }
 
       return { message: 'user removed.' };
     } catch (error) {
-      if (error instanceof BadRequestException) {
+      if (error instanceof NotFoundException) {
         throw error;
       }
       throw new InternalServerErrorException(error.message);
@@ -137,12 +133,12 @@ export class UsersService {
   async ban(id: number) {
     try {
       if (!id) {
-        throw new BadRequestException('user not found.');
+        throw new NotFoundException('user not found.');
       }
 
       const user = await this.userRepo.findOne({ where: { id } });
       if (!user) {
-        throw new BadRequestException('user not found.');
+        throw new NotFoundException('user not found.');
       }
 
       user.isBanned = true;
@@ -150,7 +146,7 @@ export class UsersService {
 
       return { message: 'user is now banned.' };
     } catch (error) {
-      if (error instanceof BadRequestException) {
+      if (error instanceof NotFoundException) {
         throw error;
       }
       throw new InternalServerErrorException(error.message);
@@ -160,12 +156,12 @@ export class UsersService {
   async unBan(id: number) {
     try {
       if (!id) {
-        throw new BadRequestException('user not found.');
+        throw new NotFoundException('user not found.');
       }
 
       const user = await this.userRepo.findOne({ where: { id } });
       if (!user) {
-        throw new BadRequestException('user not found.');
+        throw new NotFoundException('user not found.');
       }
 
       user.isBanned = false;
@@ -173,7 +169,7 @@ export class UsersService {
 
       return { message: 'user is now unBanned.' };
     } catch (error) {
-      if (error instanceof BadRequestException) {
+      if (error instanceof NotFoundException) {
         throw error;
       }
       throw new InternalServerErrorException(error.message);

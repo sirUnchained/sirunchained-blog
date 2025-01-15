@@ -9,6 +9,7 @@ import UserRoles from 'src/Enums/usersEnum/roles.enum';
 import { RoleGuard } from 'src/middleWare/roleGaurd.middleware';
 import { AuthMiddleware } from 'src/middleWare/auth.middleware';
 import { TokenEntity } from 'src/auth/entities/token.entity';
+import { CategoriesModule } from './categories/categories.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { TokenEntity } from 'src/auth/entities/token.entity';
     }),
     UsersModule,
     AuthModule,
+    CategoriesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
