@@ -14,6 +14,9 @@ export class ContactEntity {
   subject: string;
 
   @Column({ nullable: false })
+  email: string;
+
+  @Column({ nullable: false })
   title: string;
 
   @Column({ nullable: false })

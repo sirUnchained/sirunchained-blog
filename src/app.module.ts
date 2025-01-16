@@ -12,6 +12,7 @@ import { CategoryEntity } from './categories/entities/category.entity';
 import { ArticlesModule } from './articles/articles.module';
 import { ArticleEntity } from './articles/entities/article.entity';
 import { ContactsModule } from './contacts/contacts.module';
+import { ContactEntity } from './contacts/entities/contact.entity';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { ContactsModule } from './contacts/contacts.module';
       TokenEntity,
       CategoryEntity,
       ArticleEntity,
+      ContactEntity,
     ]),
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -28,7 +30,13 @@ import { ContactsModule } from './contacts/contacts.module';
       host: 'localhost',
       port: 5432,
       database: 'sirunchained-blog',
-      entities: [UserEntity, TokenEntity, CategoryEntity, ArticleEntity],
+      entities: [
+        UserEntity,
+        TokenEntity,
+        CategoryEntity,
+        ArticleEntity,
+        ContactEntity,
+      ],
       synchronize: true,
     }),
     UsersModule,
@@ -52,12 +60,16 @@ export class AppModule {
         { path: 'articles*', method: RequestMethod.POST },
         { path: 'articles*', method: RequestMethod.PATCH },
         { path: 'articles*', method: RequestMethod.DELETE },
+        { path: 'contacts', method: RequestMethod.DELETE },
+        { path: 'contacts', method: RequestMethod.GET },
       )
       .apply(new RoleGuard().use([UserRoles.admin]))
       .exclude(
         { path: 'users/:id', method: RequestMethod.PUT },
         { path: 'users/me', method: RequestMethod.GET },
         { path: 'categories', method: RequestMethod.GET },
+        { path: 'contacts', method: RequestMethod.DELETE },
+        { path: 'contacts', method: RequestMethod.GET },
       )
       .forRoutes(
         { path: 'users*', method: RequestMethod.ALL },
