@@ -1,11 +1,4 @@
-import {
-  IsBoolean,
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  Length,
-  Min,
-} from 'class-validator';
+import { IsNotEmpty, IsOptional, Length } from 'class-validator';
 
 export class CreateArticleDto {
   @IsNotEmpty()

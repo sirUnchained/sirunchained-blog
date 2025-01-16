@@ -41,8 +41,14 @@ export class ArticlesController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateArticleDto: UpdateArticleDto) {
-    return this.articlesService.update(+id, updateArticleDto);
+  @UseInterceptors(FileInterceptor('cover'))
+  update(
+    @Param('id') id: string,
+    @Body() updateArticleDto: UpdateArticleDto,
+    @UploadedFile() file: any,
+    @Req() req: any,
+  ) {
+    return this.articlesService.update(+id, updateArticleDto, file, req);
   }
 
   @Delete(':id')

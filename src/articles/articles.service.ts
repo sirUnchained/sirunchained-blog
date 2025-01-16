@@ -140,8 +140,61 @@ export class ArticlesService {
     }
   }
 
-  async update(id: number, updateArticleDto: UpdateArticleDto) {
-    return `This action updates a #${id} article`;
+  async update(
+    id: number,
+    updateArticleDto: UpdateArticleDto,
+    file: Express.Multer.File,
+    req: any,
+  ) {
+    try {
+      if (!id && id <= 0) {
+        throw new NotFoundException('article not found.');
+      }
+
+      const { title, description, content, category } = updateArticleDto;
+
+      if (isNaN(category)) {
+        throw new NotFoundException('category not found.');
+      }
+
+      let isPublished = updateArticleDto.isPublished === '1';
+
+      const slug = title.replaceAll(/ |_/g, '-').toLowerCase();
+      const author = req.user;
+
+      let filePath: string | null = null;
+      if (file && file.filename) filePath = file.filename;
+
+      const checkCategory = await this.categoryRepo.findOne({
+        where: { id: category },
+      });
+      if (!checkCategory) {
+        throw new NotFoundException('category not found.');
+      }
+
+      const article = this.articleRepo.create({
+        title,
+        slug,
+        description,
+        cover: filePath,
+        content,
+        category: checkCategory,
+        author,
+        isPublished,
+      });
+
+      const result = await this.articleRepo.update(id, article);
+      if (!result.affected) {
+        throw new NotFoundException('article not found.');
+      }
+
+      return article;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException(error.message);
+    }
   }
 
   async remove(id: number) {
