@@ -11,6 +11,7 @@ import { CategoriesModule } from './categories/categories.module';
 import { CategoryEntity } from './categories/entities/category.entity';
 import { ArticlesModule } from './articles/articles.module';
 import { ArticleEntity } from './articles/entities/article.entity';
+import { ContactsModule } from './contacts/contacts.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { ArticleEntity } from './articles/entities/article.entity';
     AuthModule,
     CategoriesModule,
     ArticlesModule,
+    ContactsModule,
   ],
 })
 export class AppModule {
