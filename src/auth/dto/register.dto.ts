@@ -1,4 +1,3 @@
-import { Optional } from '@nestjs/common';
 import {
   IsBoolean,
   IsEmail,
@@ -7,6 +6,7 @@ import {
   IsString,
   Matches,
   MinLength,
+  IsOptional,
 } from 'class-validator';
 
 export class RegisterDto {
@@ -27,12 +27,12 @@ export class RegisterDto {
   })
   phone: string;
 
-  @Optional()
+  @IsOptional()
   @IsEmail()
   @IsString()
   email: string;
 
-  @Optional()
+  @IsOptional()
   @IsBoolean()
   remember: Boolean;
 }

@@ -1,5 +1,10 @@
-import { Optional } from '@nestjs/common';
-import { IsBoolean, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import {
+  IsBoolean,
+  IsNotEmpty,
+  IsString,
+  MinLength,
+  IsOptional,
+} from 'class-validator';
 
 export class LoginDto {
   @IsNotEmpty()
@@ -11,7 +16,7 @@ export class LoginDto {
   @MinLength(8)
   password: string;
 
-  @Optional()
+  @IsOptional()
   @IsBoolean()
   remember: Boolean;
 }

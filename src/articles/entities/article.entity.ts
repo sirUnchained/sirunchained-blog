@@ -4,6 +4,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -20,19 +21,22 @@ export class ArticleEntity {
   @Column({ nullable: false, unique: true })
   slug: string;
 
-  @Column({ type: 'string', length: 250 })
+  @Column({ type: 'varchar', length: 250 })
   description: string;
 
-  @Column({ type: 'string', nullable: true })
-  cover: string;
+  @Column({ type: 'varchar', nullable: true })
+  cover: string | null;
 
   @Column({ type: 'text' })
   content: string;
 
-  @OneToMany(() => UserEntity, (user) => user.id, { onDelete: 'CASCADE' })
+  @Column({ default: false })
+  isPublished: boolean;
+
+  @ManyToOne(() => UserEntity, (user) => user.id, { onDelete: 'CASCADE' })
   author: UserEntity;
 
-  @OneToMany(() => CategoryEntity, (category) => category.id, {
+  @ManyToOne(() => CategoryEntity, (category) => category.id, {
     onDelete: 'CASCADE',
   })
   category: CategoryEntity;

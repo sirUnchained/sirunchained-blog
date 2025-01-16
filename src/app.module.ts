@@ -10,10 +10,16 @@ import { TokenEntity } from 'src/auth/entities/token.entity';
 import { CategoriesModule } from './categories/categories.module';
 import { CategoryEntity } from './categories/entities/category.entity';
 import { ArticlesModule } from './articles/articles.module';
+import { ArticleEntity } from './articles/entities/article.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UserEntity, TokenEntity, CategoryEntity]),
+    TypeOrmModule.forFeature([
+      UserEntity,
+      TokenEntity,
+      CategoryEntity,
+      ArticleEntity,
+    ]),
     TypeOrmModule.forRoot({
       type: 'postgres',
       username: 'postgres',
@@ -21,7 +27,7 @@ import { ArticlesModule } from './articles/articles.module';
       host: 'localhost',
       port: 5432,
       database: 'sirunchained-blog',
-      entities: [UserEntity, TokenEntity, CategoryEntity],
+      entities: [UserEntity, TokenEntity, CategoryEntity, ArticleEntity],
       synchronize: true,
     }),
     UsersModule,
@@ -34,10 +40,14 @@ export class AppModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(AuthMiddleware)
-      .exclude({ path: 'categories/', method: RequestMethod.GET })
+      .exclude(
+        { path: 'categories/', method: RequestMethod.GET },
+        { path: 'articles*', method: RequestMethod.GET },
+      )
       .forRoutes(
         { path: 'users*', method: RequestMethod.ALL },
         { path: 'categories*', method: RequestMethod.ALL },
+        { path: 'articles*', method: RequestMethod.ALL },
       );
 
     consumer
@@ -50,6 +60,15 @@ export class AppModule {
       .forRoutes(
         { path: 'users*', method: RequestMethod.ALL },
         { path: 'categories*', method: RequestMethod.ALL },
+        { path: 'articles*', method: RequestMethod.DELETE },
       );
+
+    consumer
+      .apply(new RoleGuard().use([UserRoles.author]))
+      .exclude(
+        { path: 'articles*', method: RequestMethod.GET },
+        { path: 'articles*', method: RequestMethod.DELETE },
+      )
+      .forRoutes({ path: 'articles*', method: RequestMethod.ALL });
   }
 }
