@@ -71,12 +71,73 @@ export class ArticlesService {
     }
   }
 
-  async findAll() {
-    return `This action returns all articles`;
+  async findAll(queries: { limit: number; page: number; category: number }) {
+    try {
+      let { limit, page, category } = queries;
+      isNaN(page) && (page = 1);
+      isNaN(limit) && (limit = 10);
+
+      let result = [];
+      if (!isNaN(category) && category > 0) {
+        result = await this.articleRepo.find({
+          take: limit,
+          skip: (page - 1) * limit,
+          where: { category: category as any, isPublished: true },
+          select: [
+            'id',
+            'title',
+            'slug',
+            'description',
+            'cover',
+            'category',
+            'author',
+            'createdAt',
+          ],
+        });
+      } else {
+        result = await this.articleRepo.find({
+          take: limit,
+          skip: (page - 1) * limit,
+          where: { isPublished: true },
+          select: [
+            'id',
+            'title',
+            'slug',
+            'description',
+            'cover',
+            'category',
+            'author',
+            'createdAt',
+          ],
+        });
+      }
+
+      return result;
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
   }
 
   async findOne(id: number) {
-    return `This action returns a #${id} article`;
+    try {
+      if (!id && id <= 0) {
+        throw new NotFoundException('article not found.');
+      }
+
+      const article = await this.articleRepo.findOne({
+        where: { id, isPublished: true },
+      });
+      if (!article) {
+        throw new NotFoundException('article not found.');
+      }
+
+      return article;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException(error.message);
+    }
   }
 
   async update(id: number, updateArticleDto: UpdateArticleDto) {
@@ -84,6 +145,22 @@ export class ArticlesService {
   }
 
   async remove(id: number) {
-    return `This action removes a #${id} article`;
+    try {
+      if (!id) {
+        throw new NotFoundException('article not found.');
+      }
+
+      const result = await this.articleRepo.delete(id);
+      if (!result.affected) {
+        throw new NotFoundException('article not found.');
+      }
+
+      return { message: 'article removed.' };
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException(error.message);
+    }
   }
 }

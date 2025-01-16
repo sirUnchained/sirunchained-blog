@@ -47,28 +47,29 @@ export class AppModule {
       .forRoutes(
         { path: 'users*', method: RequestMethod.ALL },
         { path: 'categories*', method: RequestMethod.ALL },
-        { path: 'articles*', method: RequestMethod.ALL },
-      );
-
-    consumer
+        { path: 'articles*', method: RequestMethod.POST },
+        { path: 'articles*', method: RequestMethod.PATCH },
+        { path: 'articles*', method: RequestMethod.DELETE },
+      )
       .apply(new RoleGuard().use([UserRoles.admin]))
       .exclude(
         { path: 'users/:id', method: RequestMethod.PUT },
         { path: 'users/me', method: RequestMethod.GET },
-        { path: 'categories/', method: RequestMethod.GET },
+        { path: 'categories', method: RequestMethod.GET },
       )
       .forRoutes(
         { path: 'users*', method: RequestMethod.ALL },
         { path: 'categories*', method: RequestMethod.ALL },
         { path: 'articles*', method: RequestMethod.DELETE },
-      );
-
-    consumer
+      )
       .apply(new RoleGuard().use([UserRoles.author]))
       .exclude(
         { path: 'articles*', method: RequestMethod.GET },
         { path: 'articles*', method: RequestMethod.DELETE },
       )
-      .forRoutes({ path: 'articles*', method: RequestMethod.ALL });
+      .forRoutes(
+        { path: 'articles*', method: RequestMethod.PATCH },
+        { path: 'articles*', method: RequestMethod.POST },
+      );
   }
 }
