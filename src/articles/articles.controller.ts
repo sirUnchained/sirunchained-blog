@@ -31,8 +31,11 @@ export class ArticlesController {
   }
 
   @Get()
-  findAll(@Query() queries: { limit: number; page: number; category: number }) {
-    return this.articlesService.findAll(queries);
+  findAll(
+    @Query() queries: { limit: number; page: number; category: number },
+    @Body() body: { category: number; tags: number[] },
+  ) {
+    return this.articlesService.findAll(queries, body);
   }
 
   @Get(':id')

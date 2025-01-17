@@ -80,15 +80,20 @@ export class ArticlesService {
     }
   }
 
-  async findAll(queries: { limit: number; page: number; category: number }) {
+  async findAll(
+    queries: { limit: number; page: number; category: number },
+    body: { category: number; tags: number[] },
+  ) {
     try {
-      let { limit, page, category } = queries;
+      let { limit, page } = queries;
       isNaN(page) && (page = 1);
       isNaN(limit) && (limit = 10);
 
-      let result = [];
+      let { category } = body;
+
+      let results = [];
       if (!isNaN(category) && category > 0) {
-        result = await this.articleRepo.find({
+        results = await this.articleRepo.find({
           take: limit,
           skip: (page - 1) * limit,
           where: { category: category as any, isPublished: true },
@@ -104,7 +109,7 @@ export class ArticlesService {
           ],
         });
       } else {
-        result = await this.articleRepo.find({
+        results = await this.articleRepo.find({
           take: limit,
           skip: (page - 1) * limit,
           where: { isPublished: true },
@@ -121,8 +126,17 @@ export class ArticlesService {
         });
       }
 
-      return result;
+      let chosenTags = body.tags;
+      if (chosenTags) {
+        chosenTags = chosenTags.map((tag) => !isNaN(tag) && +tag);
+        results = results.filter((result) =>
+          result.tags.some((tag: any) => chosenTags.includes(tag.id)),
+        );
+      }
+
+      return results;
     } catch (error) {
+      console.log(error);
       throw new InternalServerErrorException(error.message);
     }
   }
