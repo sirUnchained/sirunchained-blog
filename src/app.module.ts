@@ -14,6 +14,8 @@ import { ArticleEntity } from './articles/entities/article.entity';
 import { ContactsModule } from './contacts/contacts.module';
 import { ContactEntity } from './contacts/entities/contact.entity';
 import { TagsModule } from './tags/tags.module';
+import { TagEntity } from './tags/entities/tag.entity';
+import { TagArticleModule } from './tag_article/tag_article.module';
 
 @Module({
   imports: [
@@ -23,6 +25,7 @@ import { TagsModule } from './tags/tags.module';
       CategoryEntity,
       ArticleEntity,
       ContactEntity,
+      TagEntity,
     ]),
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -37,6 +40,7 @@ import { TagsModule } from './tags/tags.module';
         CategoryEntity,
         ArticleEntity,
         ContactEntity,
+        TagEntity,
       ],
       synchronize: true,
     }),
@@ -46,6 +50,7 @@ import { TagsModule } from './tags/tags.module';
     ArticlesModule,
     ContactsModule,
     TagsModule,
+    TagArticleModule,
   ],
 })
 export class AppModule {
