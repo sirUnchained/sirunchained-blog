@@ -8,8 +8,9 @@ import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ArticleEntity } from './entities/article.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { CategoryEntity } from 'src/categories/entities/category.entity';
+import { TagEntity } from 'src/tags/entities/tag.entity';
 
 @Injectable()
 export class ArticlesService {
@@ -18,6 +19,8 @@ export class ArticlesService {
     private readonly articleRepo: Repository<ArticleEntity>,
     @InjectRepository(CategoryEntity)
     private readonly categoryRepo: Repository<CategoryEntity>,
+    @InjectRepository(TagEntity)
+    private readonly tagRepo: Repository<TagEntity>,
   ) {}
 
   async create(
@@ -31,6 +34,11 @@ export class ArticlesService {
       if (isNaN(category)) {
         throw new NotFoundException('category not found.');
       }
+
+      let tagIds = createArticleDto.tags as any;
+      tagIds = JSON.parse(tagIds) as number[];
+      tagIds = tagIds.map((item) => !isNaN(item) && +item);
+      const tags = await this.tagRepo.find({ where: { id: In(tagIds) } });
 
       let isPublished = createArticleDto.isPublished === '1';
 
@@ -56,6 +64,7 @@ export class ArticlesService {
         category: checkCategory,
         author,
         isPublished,
+        tags,
       });
 
       await this.articleRepo.save(newArticle);
@@ -152,10 +161,28 @@ export class ArticlesService {
       }
 
       const { title, description, content, category } = updateArticleDto;
-
+      // check category exists
       if (isNaN(category)) {
         throw new NotFoundException('category not found.');
       }
+      const checkCategory = await this.categoryRepo.findOne({
+        where: { id: category },
+      });
+      if (!checkCategory) {
+        throw new NotFoundException('category not found.');
+      }
+      // check article exists
+      const article = await this.articleRepo.findOne({ where: { id } });
+      if (!article) {
+        console.log(article);
+        throw new NotFoundException('article not found.');
+      }
+
+      // updating results as update dto
+      let tagIds = updateArticleDto.tags as any;
+      tagIds = JSON.parse(tagIds) as number[];
+      tagIds = tagIds.map((item: number) => !isNaN(item) && +item);
+      const tags = await this.tagRepo.find({ where: { id: In(tagIds) } });
 
       let isPublished = updateArticleDto.isPublished === '1';
 
@@ -165,30 +192,19 @@ export class ArticlesService {
       let filePath: string | null = null;
       if (file && file.filename) filePath = file.filename;
 
-      const checkCategory = await this.categoryRepo.findOne({
-        where: { id: category },
-      });
-      if (!checkCategory) {
-        throw new NotFoundException('category not found.');
-      }
+      article.title = title;
+      article.slug = slug;
+      article.description = description;
+      article.cover = filePath;
+      article.content = content;
+      article.category = checkCategory;
+      article.author = author;
+      article.isPublished = isPublished;
+      article.tags = tags;
 
-      const article = this.articleRepo.create({
-        title,
-        slug,
-        description,
-        cover: filePath,
-        content,
-        category: checkCategory,
-        author,
-        isPublished,
-      });
+      const result = await this.articleRepo.save(article);
 
-      const result = await this.articleRepo.update(id, article);
-      if (!result.affected) {
-        throw new NotFoundException('article not found.');
-      }
-
-      return article;
+      return result;
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw error;

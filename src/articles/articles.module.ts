@@ -7,10 +7,11 @@ import * as path from 'node:path';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CategoryEntity } from 'src/categories/entities/category.entity';
 import { ArticleEntity } from './entities/article.entity';
+import { TagEntity } from 'src/tags/entities/tag.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([CategoryEntity, ArticleEntity]),
+    TypeOrmModule.forFeature([CategoryEntity, ArticleEntity, TagEntity]),
     MulterModule.register({
       storage: diskStorage({
         destination(req, file, callback) {

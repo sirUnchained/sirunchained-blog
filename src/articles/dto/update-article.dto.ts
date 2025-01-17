@@ -19,5 +19,8 @@ export class UpdateArticleDto {
   isPublished: string;
 
   @IsNotEmpty()
+  tags: string;
+
+  @IsNotEmpty()
   category: number;
 }

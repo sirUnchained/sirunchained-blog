@@ -15,7 +15,6 @@ import { ContactsModule } from './contacts/contacts.module';
 import { ContactEntity } from './contacts/entities/contact.entity';
 import { TagsModule } from './tags/tags.module';
 import { TagEntity } from './tags/entities/tag.entity';
-import { TagArticleModule } from './tag_article/tag_article.module';
 
 @Module({
   imports: [
@@ -50,17 +49,13 @@ import { TagArticleModule } from './tag_article/tag_article.module';
     ArticlesModule,
     ContactsModule,
     TagsModule,
-    TagArticleModule,
   ],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(AuthMiddleware)
-      .exclude(
-        { path: 'categories/', method: RequestMethod.GET },
-        { path: 'articles*', method: RequestMethod.GET },
-      )
+      .exclude({ path: 'categories/', method: RequestMethod.GET })
       .forRoutes(
         { path: 'users*', method: RequestMethod.ALL },
         { path: 'categories*', method: RequestMethod.ALL },
@@ -69,6 +64,9 @@ export class AppModule {
         { path: 'articles*', method: RequestMethod.DELETE },
         { path: 'contacts', method: RequestMethod.DELETE },
         { path: 'contacts', method: RequestMethod.GET },
+        { path: 'tags*', method: RequestMethod.DELETE },
+        { path: 'tags*', method: RequestMethod.PATCH },
+        { path: 'tags*', method: RequestMethod.POST },
       )
       .apply(new RoleGuard().use([UserRoles.admin]))
       .exclude(
@@ -82,6 +80,8 @@ export class AppModule {
         { path: 'users*', method: RequestMethod.ALL },
         { path: 'categories*', method: RequestMethod.ALL },
         { path: 'articles*', method: RequestMethod.DELETE },
+        { path: 'tags*', method: RequestMethod.DELETE },
+        { path: 'tags*', method: RequestMethod.PATCH },
       )
       .apply(new RoleGuard().use([UserRoles.author]))
       .exclude(
@@ -91,6 +91,7 @@ export class AppModule {
       .forRoutes(
         { path: 'articles*', method: RequestMethod.PATCH },
         { path: 'articles*', method: RequestMethod.POST },
+        { path: 'tags*', method: RequestMethod.POST },
       );
   }
 }

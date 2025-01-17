@@ -19,5 +19,8 @@ export class CreateArticleDto {
   isPublished: string;
 
   @IsNotEmpty()
+  tags: string;
+
+  @IsNotEmpty()
   category: number;
 }

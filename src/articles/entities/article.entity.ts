@@ -1,9 +1,12 @@
 import { CategoryEntity } from 'src/categories/entities/category.entity';
+import { TagEntity } from 'src/tags/entities/tag.entity';
 import { UserEntity } from 'src/users/entities/user.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -40,6 +43,13 @@ export class ArticleEntity {
     onDelete: 'CASCADE',
   })
   category: CategoryEntity;
+
+  @ManyToMany(() => TagEntity, (tag) => tag.id, {
+    onDelete: 'CASCADE',
+    eager: true,
+  })
+  @JoinTable()
+  tags: TagEntity[];
 
   @CreateDateColumn()
   createdAt: Date;
