@@ -93,7 +93,7 @@ export class ArticlesService {
 
       let results = [];
       if (!isNaN(category) && category > 0) {
-        results = await this.articleRepo.find({
+        results = await this.articleRepo.findAndCount({
           take: limit,
           skip: (page - 1) * limit,
           where: { category: category as any, isPublished: true },
@@ -109,7 +109,7 @@ export class ArticlesService {
           ],
         });
       } else {
-        results = await this.articleRepo.find({
+        results = await this.articleRepo.findAndCount({
           take: limit,
           skip: (page - 1) * limit,
           where: { isPublished: true },
@@ -126,12 +126,14 @@ export class ArticlesService {
         });
       }
 
+      // filter our result wuth recived tags
       let chosenTags = body.tags;
-      if (chosenTags) {
+      if (chosenTags && chosenTags.length) {
         chosenTags = chosenTags.map((tag) => !isNaN(tag) && +tag);
-        results = results.filter((result) =>
+        results[0] = results[0].filter((result: any) =>
           result.tags.some((tag: any) => chosenTags.includes(tag.id)),
         );
+        results[1] = results[0].length;
       }
 
       return results;
