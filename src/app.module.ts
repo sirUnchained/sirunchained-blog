@@ -13,6 +13,7 @@ import { ArticlesModule } from './articles/articles.module';
 import { ArticleEntity } from './articles/entities/article.entity';
 import { ContactsModule } from './contacts/contacts.module';
 import { ContactEntity } from './contacts/entities/contact.entity';
+import { TagsModule } from './tags/tags.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { ContactEntity } from './contacts/entities/contact.entity';
     CategoriesModule,
     ArticlesModule,
     ContactsModule,
+    TagsModule,
   ],
 })
 export class AppModule {
