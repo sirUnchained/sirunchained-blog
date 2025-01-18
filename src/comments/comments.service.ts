@@ -23,16 +23,26 @@ export class CommentsService {
     try {
       const { content, article } = createCommentDto;
       const user = req.user;
+      let parent: any = createCommentDto.parent;
 
       const checkArticle = await this.articleRepo.findOneBy({ id: article });
       if (!checkArticle) {
         throw new NotFoundException('article not found.');
       }
 
+      if (parent) {
+        parent = await this.commentRepo.findOneBy({ id: parent });
+        if (!parent) {
+          throw new NotFoundException('could not find comment parent.');
+        }
+      } else {
+        parent = null;
+      }
+
       const comment = this.commentRepo.create({
         content,
         user,
-        parent: null,
+        parent,
         article: checkArticle,
       });
       await this.commentRepo.save(comment);

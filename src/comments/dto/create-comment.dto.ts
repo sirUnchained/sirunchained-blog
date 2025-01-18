@@ -1,3 +1,4 @@
+import { Optional } from '@nestjs/common';
 import { IsNotEmpty, IsNumber, IsString, Length, Min } from 'class-validator';
 
 export class CreateCommentDto {
@@ -10,4 +11,8 @@ export class CreateCommentDto {
   @IsNumber()
   @IsNotEmpty()
   article: number;
+
+  @IsNumber({ allowNaN: false, allowInfinity: false })
+  @Optional()
+  parent: number | null;
 }
