@@ -1,3 +1,4 @@
+import { ArticleEntity } from 'src/articles/entities/article.entity';
 import { UserEntity } from 'src/users/entities/user.entity';
 import {
   Column,
@@ -16,13 +17,21 @@ export class CommentEntity {
   @Column({ type: 'varchar', length: 1000 })
   content: string;
 
+  @Column({ default: false })
+  accepted: boolean;
+
   @ManyToOne(() => UserEntity, (user) => user.id, { onDelete: 'CASCADE' })
   user: UserEntity;
 
   @ManyToOne(() => CommentEntity, (comment) => comment.id, {
     onDelete: 'CASCADE',
   })
-  parent: CommentEntity;
+  parent: CommentEntity | null;
+
+  @ManyToOne(() => ArticleEntity, (article) => article.id, {
+    onDelete: 'CASCADE',
+  })
+  article: ArticleEntity;
 
   @CreateDateColumn()
   createdAt: Date;

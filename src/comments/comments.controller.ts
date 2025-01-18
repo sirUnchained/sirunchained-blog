@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Req,
+  Query,
+  Put,
+} from '@nestjs/common';
 import { CommentsService } from './comments.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
@@ -8,23 +19,31 @@ export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
 
   @Post()
-  create(@Body() createCommentDto: CreateCommentDto) {
-    return this.commentsService.create(createCommentDto);
+  create(@Body() createCommentDto: CreateCommentDto, @Req() req: any) {
+    return this.commentsService.create(createCommentDto, req);
   }
 
   @Get()
-  findAll() {
-    return this.commentsService.findAll();
+  findAllArticlesComments(@Query() queries: { limit: number; page: number }) {
+    return this.commentsService.findAllArticlesComments(queries);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.commentsService.findOne(+id);
+  findOneArticleComments(
+    @Query() queries: { limit: number; page: number },
+    @Param('id') id: string,
+  ) {
+    return this.commentsService.findOneArticleComments(queries, +id);
+  }
+
+  @Put(':id')
+  update(@Param('id') id: string, @Body() updateCommentDto: UpdateCommentDto) {
+    return this.commentsService.update(+id, updateCommentDto);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCommentDto: UpdateCommentDto) {
-    return this.commentsService.update(+id, updateCommentDto);
+  acceptComment(@Param('id') id: string) {
+    return this.commentsService.acceptComment(+id);
   }
 
   @Delete(':id')
