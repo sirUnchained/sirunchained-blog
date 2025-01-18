@@ -16,6 +16,7 @@ import { ContactEntity } from './contacts/entities/contact.entity';
 import { TagsModule } from './tags/tags.module';
 import { TagEntity } from './tags/entities/tag.entity';
 import { CommentsModule } from './comments/comments.module';
+import { CommentEntity } from './comments/entities/comment.entity';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { CommentsModule } from './comments/comments.module';
       ArticleEntity,
       ContactEntity,
       TagEntity,
+      CommentEntity,
     ]),
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -41,6 +43,7 @@ import { CommentsModule } from './comments/comments.module';
         ArticleEntity,
         ContactEntity,
         TagEntity,
+        CommentEntity,
       ],
       synchronize: true,
     }),
@@ -69,6 +72,11 @@ export class AppModule {
         { path: 'tags*', method: RequestMethod.DELETE },
         { path: 'tags*', method: RequestMethod.PATCH },
         { path: 'tags*', method: RequestMethod.POST },
+        { path: 'comments', method: RequestMethod.GET },
+        { path: 'comments', method: RequestMethod.POST },
+        { path: 'comments', method: RequestMethod.PATCH },
+        { path: 'comments*', method: RequestMethod.PUT },
+        { path: 'comments*', method: RequestMethod.DELETE },
       )
       .apply(new RoleGuard().use([UserRoles.admin]))
       .exclude(
@@ -84,6 +92,9 @@ export class AppModule {
         { path: 'articles*', method: RequestMethod.DELETE },
         { path: 'tags*', method: RequestMethod.DELETE },
         { path: 'tags*', method: RequestMethod.PATCH },
+        { path: 'comments', method: RequestMethod.GET },
+        { path: 'comments*', method: RequestMethod.PATCH },
+        { path: 'comments*', method: RequestMethod.DELETE },
       )
       .apply(new RoleGuard().use([UserRoles.author]))
       .exclude(
