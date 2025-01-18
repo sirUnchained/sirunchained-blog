@@ -19,8 +19,10 @@ export class CommentEntity {
   @ManyToOne(() => UserEntity, (user) => user.id, { onDelete: 'CASCADE' })
   user: UserEntity;
 
-  @Column()
-  replies: CommentEntity[];
+  @ManyToOne(() => CommentEntity, (comment) => comment.id, {
+    onDelete: 'CASCADE',
+  })
+  parent: CommentEntity;
 
   @CreateDateColumn()
   createdAt: Date;
