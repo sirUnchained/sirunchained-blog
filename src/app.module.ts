@@ -15,6 +15,7 @@ import { ContactsModule } from './contacts/contacts.module';
 import { ContactEntity } from './contacts/entities/contact.entity';
 import { TagsModule } from './tags/tags.module';
 import { TagEntity } from './tags/entities/tag.entity';
+import { CommentsModule } from './comments/comments.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { TagEntity } from './tags/entities/tag.entity';
     ArticlesModule,
     ContactsModule,
     TagsModule,
+    CommentsModule,
   ],
 })
 export class AppModule {

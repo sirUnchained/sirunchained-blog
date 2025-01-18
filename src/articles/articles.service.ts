@@ -138,7 +138,6 @@ export class ArticlesService {
 
       return results;
     } catch (error) {
-      console.log(error);
       throw new InternalServerErrorException(error.message);
     }
   }
