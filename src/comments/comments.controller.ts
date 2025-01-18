@@ -36,9 +36,21 @@ export class CommentsController {
     return this.commentsService.findOneArticleComments(queries, +id);
   }
 
+  @Get('reply/:id')
+  getCommentReplies(
+    @Query() queries: { limit: number; page: number },
+    @Param('id') id: string,
+  ) {
+    return this.commentsService.getCommentReplies(queries, +id);
+  }
+
   @Put(':id')
-  update(@Param('id') id: string, @Body() updateCommentDto: UpdateCommentDto) {
-    return this.commentsService.update(+id, updateCommentDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateCommentDto: UpdateCommentDto,
+    @Req() req: any,
+  ) {
+    return this.commentsService.update(+id, updateCommentDto, req);
   }
 
   @Patch(':id')

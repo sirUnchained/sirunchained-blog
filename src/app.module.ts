@@ -74,7 +74,7 @@ export class AppModule {
         { path: 'tags*', method: RequestMethod.POST },
         { path: 'comments', method: RequestMethod.GET },
         { path: 'comments', method: RequestMethod.POST },
-        { path: 'comments', method: RequestMethod.PATCH },
+        { path: 'comments*', method: RequestMethod.PATCH },
         { path: 'comments*', method: RequestMethod.PUT },
         { path: 'comments*', method: RequestMethod.DELETE },
       )

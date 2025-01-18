@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -64,11 +65,28 @@ export class CommentsService {
       isNaN(limit) && (limit = 10);
 
       const comments = await this.commentRepo.find({
+        where: {
+          accepted: false,
+        },
+        relations: {
+          parent: true,
+          user: true,
+        },
+
         take: limit,
         skip: (page - 1) * limit,
       });
 
-      return comments;
+      // dont show replies which their parrents are accepted, and dont show users passwords
+      for (let i = 0; i < comments.length; i++) {
+        if (!comments[i].parent.accepted) {
+          comments.splice(i, 1);
+        } else {
+          delete comments[i].user.password;
+        }
+      }
+
+      return { comments, count: comments.length };
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
@@ -91,13 +109,25 @@ export class CommentsService {
         where: {
           article: id as any,
           accepted: true,
+          parent: null,
+        },
+        relations: {
+          user: true,
         },
 
         take: limit,
         skip: (page - 1) * limit,
       });
 
-      return comments;
+      // dont show users password, email and phone
+      for (let i = 0; i < comments.length; i++) {
+        delete comments[i].user.password;
+        delete comments[i].user.email;
+        delete comments[i].user.phone;
+        delete comments[i].user.isBanned;
+      }
+
+      return { comments, count: comments.length };
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw error;
@@ -106,15 +136,78 @@ export class CommentsService {
     }
   }
 
-  async update(id: number, updateCommentDto: UpdateCommentDto) {
+  async getCommentReplies(
+    queries: { limit: number; page: number },
+    id: number,
+  ) {
+    try {
+      if (!id || id <= 0) {
+        throw new NotFoundException('comment not found.');
+      }
+
+      let { limit, page } = queries;
+      isNaN(page) && (page = 1);
+      isNaN(limit) && (limit = 10);
+
+      const comment = await this.commentRepo.findOne({
+        where: { id, accepted: true },
+        relations: { parent: true },
+      });
+      if (!comment) {
+        throw new NotFoundException('could not find comment.');
+      } else if (comment.parent != null) {
+        throw new BadRequestException(
+          'this comment is not a parrent comment !',
+        );
+      }
+
+      console.log(comment.id);
+      const replies = await this.commentRepo.find({
+        where: { parent: { id: comment.id }, accepted: true },
+        relations: { user: true, parent: true },
+        take: limit,
+        skip: (page - 1) * limit,
+      });
+      console.log(replies);
+
+      // dont show users passwords, email and phone
+      for (let i = 0; i < replies.length; i++) {
+        delete replies[i].user.password;
+        delete replies[i].user.email;
+        delete replies[i].user.phone;
+        delete replies[i].user.isBanned;
+      }
+
+      return { replies, count: replies.length };
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      } else if (error instanceof BadRequestException) {
+        throw error;
+      }
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
+  async update(id: number, updateCommentDto: UpdateCommentDto, req: any) {
     try {
       if (!id || id <= 0) {
         throw new NotFoundException('article not found.');
       }
 
-      const comment = await this.commentRepo.findOneBy({ id });
+      const comment = await this.commentRepo.findOne({
+        relations: { user: true },
+        where: { id },
+      });
       if (!comment) {
         throw new NotFoundException('comment not found.');
+      }
+
+      const user = req.user;
+      if (comment.user.id != user.id) {
+        throw new BadRequestException(
+          "you don't have permission to update this comment.",
+        );
       }
 
       const { content } = updateCommentDto;
@@ -124,6 +217,8 @@ export class CommentsService {
       return comment;
     } catch (error) {
       if (error instanceof NotFoundException) {
+        throw error;
+      } else if (error instanceof BadRequestException) {
         throw error;
       }
       throw new InternalServerErrorException(error.message);
@@ -156,10 +251,19 @@ export class CommentsService {
         throw new NotFoundException('article not found.');
       }
 
-      const result = await this.commentRepo.delete({ id });
-      if (!result.affected) {
+      const comment = await this.commentRepo.findOne({
+        relations: { parent: true },
+        where: { id },
+      });
+      if (!comment) {
         throw new NotFoundException('comment not found.');
       }
+
+      if (comment.parent == null) {
+        await this.commentRepo.delete({ parent: { id: comment.id } });
+      }
+
+      await this.commentRepo.delete({ id: comment.id });
 
       return { message: 'comment removed.' };
     } catch (error) {
